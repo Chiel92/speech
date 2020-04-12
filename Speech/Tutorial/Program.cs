@@ -73,7 +73,6 @@ namespace Tutorial
 
         static void sr_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            var confidence = e.Result.Confidence;
             Console.WriteLine($"Confidence: {e.Result.Confidence}");
             Console.WriteLine($"Text: {e.Result.Text}");
             Console.WriteLine($"Verb: {e.Result.Semantics["theVerb"].Value}");
