@@ -12,9 +12,14 @@ let main argv =
 
     // Create a Grammar object, initializing it with the root rule.
     let g = new Grammar(document, document.Root.Id)
-
+    
     // Create an in-process speech recognizer for the en-US locale.  
     use recognizer =  new SpeechRecognitionEngine(new System.Globalization.CultureInfo("en-US"))
+
+    recognizer.EndSilenceTimeout <- TimeSpan.FromSeconds 1.0
+    recognizer.InitialSilenceTimeout <- TimeSpan.FromSeconds 3.0
+    recognizer.BabbleTimeout <- TimeSpan.FromSeconds 4.0
+    recognizer.EndSilenceTimeoutAmbiguous <- TimeSpan.FromSeconds 3.0
 
     // Load the Grammar object into the recognizer.
     recognizer.LoadGrammar(g);
