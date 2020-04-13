@@ -3,8 +3,23 @@ open System.Speech.Recognition
 open System.Speech.Recognition.SrgsGrammar
 
 let sr_SpeechRecognized sender (e:SpeechRecognizedEventArgs)  =
+    let previousColor = Console.ForegroundColor
+    Console.ForegroundColor <- ConsoleColor.Green
+    printfn "Speech recognized..."
     printfn "Confidence: %s" (e.Result.Confidence.ToString())
     printfn "Text: %s" e.Result.Text
+    printfn ""
+    Console.ForegroundColor <- previousColor
+
+let sr_SpeechHypothesized sender (e:SpeechHypothesizedEventArgs)  =
+    printfn "Speech hypothesized..."
+    printfn "Confidence: %s" (e.Result.Confidence.ToString())
+    printfn "Text: %s" e.Result.Text
+    printfn ""
+
+let sr_SpeechDetected sender (e:SpeechDetectedEventArgs)  =
+    printfn "Speech detected..."
+    printfn ""
 
 [<EntryPoint>]
 let main argv =
@@ -21,6 +36,10 @@ let main argv =
     recognizer.BabbleTimeout <- TimeSpan.FromSeconds 4.0
     recognizer.EndSilenceTimeoutAmbiguous <- TimeSpan.FromSeconds 3.0
 
+    recognizer.SpeechRecognized.AddHandler(new EventHandler<SpeechRecognizedEventArgs>(sr_SpeechRecognized))
+    recognizer.SpeechDetected.AddHandler(new EventHandler<SpeechDetectedEventArgs>(sr_SpeechDetected))
+    recognizer.SpeechHypothesized.AddHandler(new EventHandler<SpeechHypothesizedEventArgs>(sr_SpeechHypothesized))
+
     // Load the Grammar object into the recognizer.
     recognizer.LoadGrammar(g);
 
@@ -35,7 +54,6 @@ let main argv =
     document.WriteSrgs(writer)
     writer.Close()
 
-    recognizer.SpeechRecognized.AddHandler(new EventHandler<SpeechRecognizedEventArgs>(sr_SpeechRecognized))
     while (true) do
         Console.Read() |> ignore
     0 // return an integer exit code
