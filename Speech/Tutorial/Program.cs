@@ -8,9 +8,6 @@ namespace Tutorial
     {
         static void Main(string[] args)
         {
-            // Create a new SpeechRecognizer instance.
-            SpeechRecognizer sr = new SpeechRecognizer();
-
             // Create the "Subject" rule.
             SrgsRule subjRule = new SrgsRule("id_Subject");
             SrgsOneOf subjList = new SrgsOneOf(new string[] { "I", "you", "he", "she", "Tom", "Mary" });
@@ -50,13 +47,16 @@ namespace Tutorial
 
             // Create an SrgsDocument object that contains all four rules.
             SrgsDocument document = new SrgsDocument();
-            document.Rules.Add(new SrgsRule[] { rootRule, subjRule, verbRule, objRule });
+            document.Rules.Add(rootRule, subjRule, verbRule, objRule);
 
             // Set "rootRule" as the root rule of the grammar.
             document.Root = rootRule;
 
             // Create a Grammar object, initializing it with the root rule.
-            Grammar g = new Grammar(document, "Subj_Verb_Obj");
+            Grammar g = new Grammar(document, rootRule.Id);
+
+            // Create a new SpeechRecognizer instance.
+            SpeechRecognizer sr = new SpeechRecognizer();
 
             // Load the Grammar object into the recognizer.
             sr.LoadGrammar(g);
