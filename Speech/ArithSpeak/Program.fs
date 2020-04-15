@@ -1,6 +1,5 @@
 ﻿open System
 open System.Speech.Recognition
-open System.Speech.Recognition.SrgsGrammar
 
 let sr_SpeechRecognized sender (e:SpeechRecognizedEventArgs)  =
     let previousColor = Console.ForegroundColor
@@ -9,8 +8,19 @@ let sr_SpeechRecognized sender (e:SpeechRecognizedEventArgs)  =
     printfn "Confidence: %s" (e.Result.Confidence.ToString())
     printfn "Text: %s" e.Result.Text
     printfn ""
-    Console.ForegroundColor <- previousColor
 
+    Console.ForegroundColor <- ConsoleColor.Red
+    if e.Result.Confidence > 0.9f then
+        match Language.runParser e.Result.Text with
+        | Some result ->
+            Interpreter.State <- Interpreter.processOperation Interpreter.State result
+        | None -> ()
+
+    Console.ForegroundColor <- ConsoleColor.White
+    printfn "Stack: %A" Interpreter.State
+    Console.ForegroundColor <- previousColor
+    ()
+    
 let sr_SpeechHypothesized sender (e:SpeechHypothesizedEventArgs)  =
     printfn "Speech hypothesized..."
     printfn "Confidence: %s" (e.Result.Confidence.ToString())
@@ -23,7 +33,7 @@ let sr_SpeechDetected sender (e:SpeechDetectedEventArgs)  =
 
 [<EntryPoint>]
 let main argv =
-    let document = Language.createGrammarDocument
+    let document = Grammar.createGrammarDocument
 
     // Create a Grammar object, initializing it with the root rule.
     let g = new Grammar(document, document.Root.Id)
@@ -31,10 +41,10 @@ let main argv =
     // Create an in-process speech recognizer for the en-US locale.  
     use recognizer =  new SpeechRecognitionEngine(new System.Globalization.CultureInfo("en-US"))
 
-    recognizer.EndSilenceTimeout <- TimeSpan.FromSeconds 1.0
-    recognizer.InitialSilenceTimeout <- TimeSpan.FromSeconds 3.0
-    recognizer.BabbleTimeout <- TimeSpan.FromSeconds 4.0
-    recognizer.EndSilenceTimeoutAmbiguous <- TimeSpan.FromSeconds 3.0
+    //recognizer.EndSilenceTimeout <- TimeSpan.FromSeconds 1.0
+    //recognizer.InitialSilenceTimeout <- TimeSpan.FromSeconds 3.0
+    //recognizer.BabbleTimeout <- TimeSpan.FromSeconds 4.0
+    //recognizer.EndSilenceTimeoutAmbiguous <- TimeSpan.FromSeconds 3.0
 
     recognizer.SpeechRecognized.AddHandler(new EventHandler<SpeechRecognizedEventArgs>(sr_SpeechRecognized))
     recognizer.SpeechDetected.AddHandler(new EventHandler<SpeechDetectedEventArgs>(sr_SpeechDetected))
