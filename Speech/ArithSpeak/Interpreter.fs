@@ -12,3 +12,5 @@ let processOperation (stack:Stack) (operation:Operation) =
     | Add -> stack.[0] + stack.[1] :: List.skip 2 stack
     | Subtract -> stack.[0] - stack.[1] :: List.skip 2 stack
     | Multiply -> stack.[0] * stack.[1] :: List.skip 2 stack
+    | Swap -> stack.[1] :: stack.[0] :: List.skip 2 stack
+    | Rotate -> stack.[1] :: stack.[2] :: stack.[0] :: List.skip 3 stack

@@ -4,10 +4,7 @@ open System.Speech.Recognition
 let sr_SpeechRecognized sender (e:SpeechRecognizedEventArgs)  =
     let previousColor = Console.ForegroundColor
     Console.ForegroundColor <- ConsoleColor.Green
-    printfn "Speech recognized..."
-    printfn "Confidence: %s" (e.Result.Confidence.ToString())
-    printfn "Text: %s" e.Result.Text
-    printfn ""
+    printfn "Speech recognized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
 
     Console.ForegroundColor <- ConsoleColor.Red
     if e.Result.Confidence > 0.9f then
@@ -22,14 +19,10 @@ let sr_SpeechRecognized sender (e:SpeechRecognizedEventArgs)  =
     ()
     
 let sr_SpeechHypothesized sender (e:SpeechHypothesizedEventArgs)  =
-    printfn "Speech hypothesized..."
-    printfn "Confidence: %s" (e.Result.Confidence.ToString())
-    printfn "Text: %s" e.Result.Text
-    printfn ""
+    printfn "Speech hypothesized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
 
 let sr_SpeechDetected sender (e:SpeechDetectedEventArgs)  =
     printfn "Speech detected..."
-    printfn ""
 
 [<EntryPoint>]
 let main argv =
