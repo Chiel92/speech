@@ -3,10 +3,17 @@ open System
 open Language
 
 type Stack = int list
+type State() = 
+    let mutable _previousStack = Stack.Empty
+    let mutable _stack = Stack.Empty
 
-let mutable State = Stack.Empty
+    member this.Stack = _stack
+    member this.SetStack(stack:Stack) =
+        _previousStack <- _stack
+        _stack <- stack
 
-let processOperation (stack:Stack) (operation:Operation) =
+let processOperation (state:State) (operation:Operation) =
+    let stack = state.Stack
     try
         match operation with
         | Push x -> x :: stack

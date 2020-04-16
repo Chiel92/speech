@@ -1,28 +1,29 @@
 ﻿open System
 open System.Speech.Recognition
+open Interpreter
+    
+let sr_SpeechDetected sender (e:SpeechDetectedEventArgs)  =
+    printfn "Speech detected..."
 
-let sr_SpeechRecognized sender (e:SpeechRecognizedEventArgs)  =
+let sr_SpeechHypothesized sender (e:SpeechHypothesizedEventArgs)  =
+    printfn "Speech hypothesized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
+
+let sr_SpeechRecognized (interpreterState:Interpreter.State) sender (e:SpeechRecognizedEventArgs)  =
     let previousColor = Console.ForegroundColor
     Console.ForegroundColor <- ConsoleColor.Green
     printfn "Speech recognized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
 
     Console.ForegroundColor <- ConsoleColor.Red
     if e.Result.Confidence > 0.9f then
-        match Language.runParser e.Result.Text with
+        match Parser.runParser e.Result.Text with
         | Some result ->
-            Interpreter.State <- Interpreter.processOperation Interpreter.State result
+            interpreterState.SetStack(Interpreter.processOperation interpreterState result)
         | None -> ()
 
     Console.ForegroundColor <- ConsoleColor.White
-    printfn "Stack: %A" Interpreter.State
+    printfn "Stack: %A" interpreterState.Stack
     Console.ForegroundColor <- previousColor
     ()
-    
-let sr_SpeechHypothesized sender (e:SpeechHypothesizedEventArgs)  =
-    printfn "Speech hypothesized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
-
-let sr_SpeechDetected sender (e:SpeechDetectedEventArgs)  =
-    printfn "Speech detected..."
 
 [<EntryPoint>]
 let main argv =
@@ -39,9 +40,11 @@ let main argv =
     //recognizer.BabbleTimeout <- TimeSpan.FromSeconds 4.0
     //recognizer.EndSilenceTimeoutAmbiguous <- TimeSpan.FromSeconds 3.0
 
-    recognizer.SpeechRecognized.AddHandler(new EventHandler<SpeechRecognizedEventArgs>(sr_SpeechRecognized))
+    let interpreterState = Interpreter.State()
+
     recognizer.SpeechDetected.AddHandler(new EventHandler<SpeechDetectedEventArgs>(sr_SpeechDetected))
     recognizer.SpeechHypothesized.AddHandler(new EventHandler<SpeechHypothesizedEventArgs>(sr_SpeechHypothesized))
+    recognizer.SpeechRecognized.AddHandler(new EventHandler<SpeechRecognizedEventArgs>(sr_SpeechRecognized interpreterState))
 
     // Load the Grammar object into the recognizer.
     recognizer.LoadGrammar(g);
@@ -53,9 +56,9 @@ let main argv =
     recognizer.RecognizeAsync(RecognizeMode.Multiple);  
 
     // Produce an XML file that contains the grammar.
-    let writer = System.Xml.XmlWriter.Create("srgsDocument.xml")
-    document.WriteSrgs(writer)
-    writer.Close()
+    //let writer = System.Xml.XmlWriter.Create("srgsDocument.xml")
+    //document.WriteSrgs(writer)
+    //writer.Close()
 
     while (true) do
         Console.Read() |> ignore

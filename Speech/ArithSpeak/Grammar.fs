@@ -1,7 +1,4 @@
 ﻿module Grammar
-open System
-open System.Text
-open System.Speech.Recognition
 open System.Speech.Recognition.SrgsGrammar
 
 
