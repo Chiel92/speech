@@ -7,6 +7,7 @@ type State() =
     let mutable _previousStack = Stack.Empty
     let mutable _stack = Stack.Empty
 
+    member this.PreviousStack = _previousStack
     member this.Stack = _stack
     member this.SetStack(stack:Stack) =
         _previousStack <- _stack
@@ -24,6 +25,7 @@ let processOperation (state:State) (operation:Operation) =
         | Rotate -> stack.[2] :: stack.[0] :: stack.[1] :: List.skip 3 stack
         | Duplicate -> stack.[0] :: stack
         | Scratch -> List.skip 1 stack
+        | Undo -> state.PreviousStack
     with
     | :? ArgumentException as e ->
         printfn "Exception %s" e.Message

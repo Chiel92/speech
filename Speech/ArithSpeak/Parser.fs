@@ -11,8 +11,9 @@ let pSwap : OperationParser = stringReturn "swap" Swap
 let pRotate : OperationParser = stringReturn "rotate" Rotate
 let pDuplicate : OperationParser = stringReturn "duplicate" Duplicate
 let pScratch : OperationParser = stringReturn "scratch" Scratch
+let pUndo : OperationParser = stringReturn "undo" Undo
 let pOperation : OperationParser =
-    choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch]
+    choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch; pUndo]
 
 let runParser str =
     match run pOperation str with

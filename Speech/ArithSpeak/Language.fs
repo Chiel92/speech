@@ -10,4 +10,5 @@ type Operation =
     | Duplicate
     | Scratch
     | Call of Definition
+    | Undo
 and Definition = Define of (string * Operation list) 
