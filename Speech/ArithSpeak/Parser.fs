@@ -6,7 +6,7 @@ open FParsec
 let pWord word = regex (word + "\\b")
 let wordReturn word result = pWord word >>. preturn result
 
-let pBabble = spaces >>. (many (spaces >>. pWord "uhm")) >>. spaces
+let ignoreBabble = spaces >>. (many (pWord "uhm" >>. spaces))
 
 type OperationParser = Parser<Operation,unit>
 let pPush : OperationParser = pWord "push" >>. spaces >>. pint32 >>= fun x -> preturn (Push x)
@@ -22,21 +22,23 @@ let pCall : OperationParser =
     pWord "call" >>. spaces >>. anyChar >>= fun name -> preturn (Call (name.ToString())) .>> spaces .>> pWord "now"
 let pMaybe : OperationParser = pWord "maybe" >>. spaces >>. pCall >>= fun op -> preturn (Maybe op)
 let pOperation : OperationParser =
-    pBabble >>. choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch; pCall; pLessThan; pMaybe]
+    ignoreBabble >>. choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch; pCall; pLessThan; pMaybe]
 
 type DefinitionParser = Parser<Definition,unit>
 let pDefinition : DefinitionParser =
-    pWord "define" >>. pBabble >>. anyChar >>= fun name ->
-        (pBabble >>. pWord "as" >>. many1 pOperation >>= fun operations ->
+    pWord "define" >>. spaces >>. anyChar >>= fun name ->
+        (spaces >>. pWord "as" >>. many1 pOperation >>= fun operations ->
             preturn (name.ToString(), operations))
 
 type CommandParser = Parser<Command,unit>
 let pUndo : CommandParser = wordReturn "undo" Undo
+let pNop : CommandParser = wordReturn "uhm" Nop
 
 let pRoot : CommandParser = choice  [
+    pNop;
+    pUndo;
     pOperation >>= fun x -> preturn (Op x);
     pDefinition >>= fun x -> preturn (Def x);
-    pUndo;
     ]
 
 let runParser str =

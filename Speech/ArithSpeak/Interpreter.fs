@@ -52,6 +52,7 @@ let processDefinition (state:State) (definition:Definition) =
 
 let processCommand (state:State) (command:Command) =
     match command with
+    | Nop -> ()
     | Undo -> state.SetStack(state.PreviousStack)
     | Op o -> state.SetStack(processOperation state.Stack state.Scope o)
     | Def d -> processDefinition state d

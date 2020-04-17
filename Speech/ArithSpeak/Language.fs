@@ -19,3 +19,4 @@ type Command =
     | Op of Operation
     | Def of Definition
     | Undo
+    | Nop
