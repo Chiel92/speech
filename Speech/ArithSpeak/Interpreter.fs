@@ -35,7 +35,7 @@ let rec processOperation (stack:Stack) (scope:Scope) (operation:Operation) =
         | Maybe op ->
             if stack.[0] <> 0
             then (processOperation (List.skip 1 stack) scope op)
-            else stack
+            else List.skip 1 stack
         | Call d -> consumeOperations stack scope (snd scope.[d])
     with
     | e ->
