@@ -9,6 +9,8 @@ type Operation =
     | Rotate
     | Duplicate
     | Scratch
+    | LessThan
+    | Maybe of Operation
     | Call of string
 
 type Definition = string * Operation list

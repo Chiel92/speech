@@ -31,6 +31,11 @@ let rec processOperation (stack:Stack) (scope:Scope) (operation:Operation) =
         | Rotate -> stack.[2] :: stack.[0] :: stack.[1] :: List.skip 3 stack
         | Duplicate -> stack.[0] :: stack
         | Scratch -> List.skip 1 stack
+        | LessThan -> (if stack.[0] < stack.[1] then 1 else 0) :: List.skip 2 stack
+        | Maybe op ->
+            if stack.[0] <> 0
+            then (processOperation (List.skip 1 stack) scope op)
+            else stack
         | Call d -> consumeOperations stack scope (snd scope.[d])
     with
     | e ->

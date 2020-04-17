@@ -33,6 +33,7 @@ let createGrammarDocument =
     opList.Add(new SrgsItem("rotate"))
     opList.Add(new SrgsItem("duplicate"))
     opList.Add(new SrgsItem("scratch"))
+    opList.Add(new SrgsItem("less than"))
     opList.Add(new SrgsItem("undo"))
     let callItem = new SrgsItem()
     callItem.Add(new SrgsItem("call"))
