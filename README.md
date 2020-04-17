@@ -1,6 +1,11 @@
 # Speech
+This repository contains experiments in voice commanded programming.
 
-# Exercises
+## StackSpeak
+
+A simple stack-oriented voice-driven programming language.
+
+### Exercises
 
 1. Starting with stack `[1]` and without using the Push operation,
     generate the stack `[25]`.
