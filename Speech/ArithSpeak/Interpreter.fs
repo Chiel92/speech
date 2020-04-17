@@ -1,11 +1,14 @@
 ﻿module Interpreter
 open System
 open Language
+open System.Collections.Generic
 
 type Stack = int list
+type Scope = IReadOnlyDictionary<string,Definition>
 type State() = 
     let mutable _previousStack = Stack.Empty
     let mutable _stack = Stack.Empty
+    let _scope = Dictionary<string,Definition>()
 
     member this.PreviousStack = _previousStack
     member this.Stack = _stack
@@ -13,8 +16,11 @@ type State() =
         _previousStack <- _stack
         _stack <- stack
 
-let processOperation (state:State) (operation:Operation) =
-    let stack = state.Stack
+    member this.Scope : Scope = upcast _scope
+    member this.SetDefinition(name, definition) =
+        _scope.[name] <- definition
+
+let rec processOperation (stack:Stack) (scope:Scope) (operation:Operation) =
     try
         match operation with
         | Push x -> x :: stack
@@ -25,17 +31,22 @@ let processOperation (state:State) (operation:Operation) =
         | Rotate -> stack.[2] :: stack.[0] :: stack.[1] :: List.skip 3 stack
         | Duplicate -> stack.[0] :: stack
         | Scratch -> List.skip 1 stack
+        | Call d -> consumeOperations stack scope (snd scope.[d])
     with
-    | :? ArgumentException as e ->
-        printfn "Exception %s" e.Message
+    | e ->
+        printfn "Exception: %s" e.Message
         stack
+and consumeOperations (stack:Stack) (scope:Scope) (operations:Operation list) =
+    match operations with
+    | op::ops -> consumeOperations (processOperation stack scope op) scope ops
+    | [] -> stack
 
 let processDefinition (state:State) (definition:Definition) =
-    printfn "Processing definition %A" definition
-    ()
+    state.SetDefinition(fst definition, definition)
+    printfn "Saved definition %A" definition
 
 let processCommand (state:State) (command:Command) =
     match command with
     | Undo -> state.SetStack(state.PreviousStack)
-    | Op o -> state.SetStack(processOperation state o)
+    | Op o -> state.SetStack(processOperation state.Stack state.Scope o)
     | Def d -> processDefinition state d

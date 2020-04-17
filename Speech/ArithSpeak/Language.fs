@@ -9,8 +9,9 @@ type Operation =
     | Rotate
     | Duplicate
     | Scratch
-    | Call of Definition
-and Definition = Define of (string * Operation list) 
+    | Call of string
+
+type Definition = string * Operation list
 
 type Command = 
     | Op of Operation

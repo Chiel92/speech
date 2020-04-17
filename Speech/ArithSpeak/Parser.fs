@@ -17,14 +17,16 @@ let pSwap : OperationParser = wordReturn "swap" Swap
 let pRotate : OperationParser = wordReturn "rotate" Rotate
 let pDuplicate : OperationParser = wordReturn "duplicate" Duplicate
 let pScratch : OperationParser = wordReturn "scratch" Scratch
+let pCall : OperationParser =
+    pWord "call" >>. spaces >>. anyChar >>= fun name -> preturn (Call (name.ToString())) .>> spaces .>> pWord "now"
 let pOperation : OperationParser =
-    pBabble >>. choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch]
+    pBabble >>. choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch; pCall]
 
 type DefinitionParser = Parser<Definition,unit>
 let pDefinition : DefinitionParser =
     pWord "define" >>. pBabble >>. anyChar >>= fun name ->
         (pBabble >>. pWord "as" >>. many1 pOperation >>= fun operations ->
-            preturn (Define (name.ToString(), operations)))
+            preturn (name.ToString(), operations))
 
 type CommandParser = Parser<Command,unit>
 let pUndo : CommandParser = wordReturn "undo" Undo
