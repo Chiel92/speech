@@ -10,5 +10,9 @@ type Operation =
     | Duplicate
     | Scratch
     | Call of Definition
-    | Undo
 and Definition = Define of (string * Operation list) 
+
+type Command = 
+    | Op of Operation
+    | Def of Definition
+    | Undo

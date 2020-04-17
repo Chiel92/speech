@@ -25,8 +25,17 @@ let processOperation (state:State) (operation:Operation) =
         | Rotate -> stack.[2] :: stack.[0] :: stack.[1] :: List.skip 3 stack
         | Duplicate -> stack.[0] :: stack
         | Scratch -> List.skip 1 stack
-        | Undo -> state.PreviousStack
     with
     | :? ArgumentException as e ->
         printfn "Exception %s" e.Message
         stack
+
+let processDefinition (state:State) (definition:Definition) =
+    printfn "Processing definition %A" definition
+    ()
+
+let processCommand (state:State) (command:Command) =
+    match command with
+    | Undo -> state.SetStack(state.PreviousStack)
+    | Op o -> state.SetStack(processOperation state o)
+    | Def d -> processDefinition state d

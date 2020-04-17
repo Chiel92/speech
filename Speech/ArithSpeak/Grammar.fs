@@ -26,7 +26,7 @@ let createGrammarDocument =
     pushItem.Add(new SrgsItem("push"))
     pushItem.Add(new SrgsRuleRef(numberRule))
     opList.Add(pushItem)
-    opList.Add(new SrgsItem("add up"))
+    opList.Add(new SrgsItem("add together"))
     opList.Add(new SrgsItem("subtract"))
     opList.Add(new SrgsItem("multiply"))
     opList.Add(new SrgsItem("swap"))
@@ -45,8 +45,7 @@ let createGrammarDocument =
     defRule.Add(new SrgsItem("define"))
     defRule.Add(new SrgsRuleRef(letterRule))
     defRule.Add(new SrgsItem("as"))
-    defRule.Add(new SrgsItem(0, 100, new SrgsRuleRef(opRule)))
-    defRule.Add(new SrgsItem("stop"))
+    defRule.Add(new SrgsItem(1, 20, new SrgsRuleRef(opRule)))
 
     let rootRule = new SrgsRule("id_root")
     let rootList = new SrgsOneOf()

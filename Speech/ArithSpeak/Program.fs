@@ -16,8 +16,7 @@ let sr_SpeechRecognized (interpreterState:Interpreter.State) sender (e:SpeechRec
     Console.ForegroundColor <- ConsoleColor.Red
     if e.Result.Confidence > 0.9f then
         match Parser.runParser e.Result.Text with
-        | Some result ->
-            interpreterState.SetStack(Interpreter.processOperation interpreterState result)
+        | Some result -> Interpreter.processCommand interpreterState result
         | None -> ()
 
     Console.ForegroundColor <- ConsoleColor.White
@@ -38,7 +37,7 @@ let main argv =
     //recognizer.EndSilenceTimeout <- TimeSpan.FromSeconds 1.0
     //recognizer.InitialSilenceTimeout <- TimeSpan.FromSeconds 3.0
     //recognizer.BabbleTimeout <- TimeSpan.FromSeconds 4.0
-    //recognizer.EndSilenceTimeoutAmbiguous <- TimeSpan.FromSeconds 3.0
+    recognizer.EndSilenceTimeoutAmbiguous <- TimeSpan.FromSeconds 2.0
 
     let interpreterState = Interpreter.State()
 
