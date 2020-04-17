@@ -14,14 +14,14 @@ let createGrammarDocument =
     let letterList = new SrgsOneOf(letters)
     letterRule.Add(letterList)
 
-    //let babbleRule = new SrgsRule("id_babble")
-    //let babbleList = new SrgsOneOf("uhm")
-    //babbleRule.Add(babbleList)
+    let babbleRule = new SrgsRule("id_babble")
+    let babbleList = new SrgsOneOf("uhm")
+    babbleRule.Add(babbleList)
 
     // Create the "Operation" rule.
     let opRule = new SrgsRule("id_op")
     let opList = new SrgsOneOf()
-    //opList.Add(new SrgsItem(new SrgsRuleRef(babbleRule)))
+    opList.Add(new SrgsItem(new SrgsRuleRef(babbleRule)))
     let pushItem = new SrgsItem()
     pushItem.Add(new SrgsItem("push"))
     pushItem.Add(new SrgsRuleRef(numberRule))
@@ -55,7 +55,7 @@ let createGrammarDocument =
 
     // Create an SrgsDocument object that contains all rules.
     let document = new SrgsDocument();
-    document.Rules.Add(rootRule, defRule, opRule, numberRule, letterRule);
+    document.Rules.Add(rootRule, defRule, opRule, numberRule, letterRule, babbleRule);
 
     // Set "rootRule" as the root rule of the grammar.
     document.Root <- rootRule;

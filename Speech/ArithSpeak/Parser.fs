@@ -6,6 +6,8 @@ open FParsec
 let pWord word = regex (word + "\\b")
 let wordReturn word result = pWord word >>. preturn result
 
+let pBabble = spaces >>. (many (spaces >>. pWord "uhm")) >>. spaces
+
 type OperationParser = Parser<Operation,unit>
 let pPush : OperationParser = pWord "push" >>. spaces >>. pint32 >>= fun x -> preturn (Push x)
 let pAdd : OperationParser = wordReturn "add together" Add
@@ -16,12 +18,12 @@ let pRotate : OperationParser = wordReturn "rotate" Rotate
 let pDuplicate : OperationParser = wordReturn "duplicate" Duplicate
 let pScratch : OperationParser = wordReturn "scratch" Scratch
 let pOperation : OperationParser =
-    spaces >>. choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch]
+    pBabble >>. choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch]
 
 type DefinitionParser = Parser<Definition,unit>
 let pDefinition : DefinitionParser =
-    pWord "define" >>. spaces1 >>. anyChar >>= fun name ->
-        (spaces1 >>. pWord "as" >>. many1 pOperation >>= fun operations ->
+    pWord "define" >>. pBabble >>. anyChar >>= fun name ->
+        (pBabble >>. pWord "as" >>. many1 pOperation >>= fun operations ->
             preturn (Define (name.ToString(), operations)))
 
 type CommandParser = Parser<Command,unit>
