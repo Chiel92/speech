@@ -2,7 +2,7 @@
 open Language
 open FParsec
 
-// Parse a string if it ends with a word boundary, ignoring prefixed whitespace
+// Parse a string if it ends with a word boundary
 let pWord word = regex (word + "\\b")
 let wordReturn word result = pWord word >>. preturn result
 
@@ -20,8 +20,9 @@ let pScratch : OperationParser = wordReturn "scratch" Scratch
 let pLessThan : OperationParser = wordReturn "less than" LessThan
 let pCall : OperationParser =
     pWord "call" >>. spaces >>. anyChar >>= fun name -> preturn (Call (name.ToString())) .>> spaces .>> pWord "now"
+let pMaybe : OperationParser = pWord "maybe" >>. spaces >>. pCall >>= fun op -> preturn (Maybe op)
 let pOperation : OperationParser =
-    pBabble >>. choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch; pCall; pLessThan]
+    pBabble >>. choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch; pCall; pLessThan; pMaybe]
 
 type DefinitionParser = Parser<Definition,unit>
 let pDefinition : DefinitionParser =

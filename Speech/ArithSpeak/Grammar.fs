@@ -5,7 +5,7 @@ open System.Speech.Recognition.SrgsGrammar
 let createGrammarDocument = 
     // Create the "Number" rule.
     let numberRule = new SrgsRule("id_number")
-    let numbers = [1..100] |> List.map (fun s -> s.ToString()) |> List.toArray
+    let numbers = [0..100] |> List.map (fun s -> s.ToString()) |> List.toArray
     let numberList = new SrgsOneOf(numbers)
     numberRule.Add(numberList)
 
@@ -40,6 +40,11 @@ let createGrammarDocument =
     callItem.Add(new SrgsRuleRef(letterRule))
     callItem.Add(new SrgsItem("now"))
     opList.Add(callItem)
+    let maybeCallItem = new SrgsItem()
+    maybeCallItem.Add(new SrgsItem("maybe call"))
+    maybeCallItem.Add(new SrgsRuleRef(letterRule))
+    maybeCallItem.Add(new SrgsItem("now"))
+    opList.Add(maybeCallItem)
     opRule.Add(opList)
 
     let defRule = new SrgsRule("id_def")

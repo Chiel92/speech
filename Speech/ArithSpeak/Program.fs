@@ -1,6 +1,5 @@
 ﻿open System
 open System.Speech.Recognition
-open Interpreter
     
 let sr_SpeechDetected sender (e:SpeechDetectedEventArgs)  =
     printfn "Speech detected..."
@@ -10,7 +9,11 @@ let sr_SpeechHypothesized sender (e:SpeechHypothesizedEventArgs)  =
 
 let sr_SpeechRecognized (interpreterState:Interpreter.State) sender (e:SpeechRecognizedEventArgs)  =
     let previousColor = Console.ForegroundColor
-    Console.ForegroundColor <- ConsoleColor.Green
+    if e.Result.Confidence > 0.9f then
+        Console.ForegroundColor <- ConsoleColor.Green
+    else
+        Console.ForegroundColor <- ConsoleColor.Cyan
+
     printfn "Speech recognized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
 
     Console.ForegroundColor <- ConsoleColor.Red
@@ -19,7 +22,7 @@ let sr_SpeechRecognized (interpreterState:Interpreter.State) sender (e:SpeechRec
         | Some result -> Interpreter.processCommand interpreterState result
         | None -> ()
 
-    Console.ForegroundColor <- ConsoleColor.White
+    Console.ForegroundColor <- ConsoleColor.Yellow
     printfn "Stack: %A" interpreterState.Stack
     Console.ForegroundColor <- previousColor
     ()
