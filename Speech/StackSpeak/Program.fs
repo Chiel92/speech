@@ -5,7 +5,8 @@ let sr_SpeechDetected sender (e:SpeechDetectedEventArgs)  =
     printfn "Speech detected..."
 
 let sr_SpeechHypothesized sender (e:SpeechHypothesizedEventArgs)  =
-    printfn "Speech hypothesized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
+    //printfn "Speech hypothesized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
+    ()
 
 let sr_SpeechRecognized (interpreterState:Interpreter.State) sender (e:SpeechRecognizedEventArgs)  =
     let previousColor = Console.ForegroundColor

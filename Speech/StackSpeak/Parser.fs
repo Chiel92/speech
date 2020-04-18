@@ -10,11 +10,10 @@ let ignoreBabble = spaces >>. (many (pWord "uhm" >>. spaces))
 
 type OperationParser = Parser<Operation,unit>
 let pPush : OperationParser = pWord "push" >>. spaces >>. pint32 >>= fun x -> preturn (Push x)
+let pPull : OperationParser = pWord "pull" >>. spaces >>. pint32 >>= fun x -> preturn (Pull x)
 let pAdd : OperationParser = wordReturn "add together" Add
 let pSubtract : OperationParser = wordReturn "subtract" Subtract
 let pMultiply : OperationParser = wordReturn "multiply" Multiply
-let pSwap : OperationParser = wordReturn "swap" Swap
-let pRotate : OperationParser = wordReturn "rotate" Rotate
 let pDuplicate : OperationParser = wordReturn "duplicate" Duplicate
 let pScratch : OperationParser = wordReturn "scratch" Scratch
 let pLessThan : OperationParser = wordReturn "less than" LessThan
@@ -22,7 +21,7 @@ let pCall : OperationParser =
     pWord "call" >>. spaces >>. anyChar >>= fun name -> preturn (Call (name.ToString())) .>> spaces .>> pWord "now"
 let pMaybe : OperationParser = pWord "maybe" >>. spaces >>. pCall >>= fun op -> preturn (Maybe op)
 let pOperation : OperationParser =
-    ignoreBabble >>. choice [pPush; pAdd; pSubtract; pMultiply; pSwap; pRotate; pDuplicate; pScratch; pCall; pLessThan; pMaybe]
+    ignoreBabble >>. choice [pPush; pPull; pAdd; pSubtract; pMultiply; pDuplicate; pScratch; pCall; pLessThan; pMaybe]
 
 type DefinitionParser = Parser<Definition,unit>
 let pDefinition : DefinitionParser =

@@ -2,11 +2,10 @@
 
 type Operation =
     | Push of int
+    | Pull of int
     | Add
     | Subtract
     | Multiply
-    | Swap
-    | Rotate
     | Duplicate
     | Scratch
     | LessThan
