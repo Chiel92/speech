@@ -30,8 +30,14 @@ let sr_SpeechRecognized verbose (interpreterState:Interpreter.State) sender (e:S
     Console.ForegroundColor <- previousColor
     ()
 
+open ParserLib
 [<EntryPoint>]
 let main argv =
+    while (true) do
+        let input = Console.ReadLine()
+        let result = runParser (pHello) input
+        Console.WriteLine(result)
+
     let verbose = false
     let writeGrammar = false
 
@@ -39,8 +45,9 @@ let main argv =
 
     // Create a Grammar object, initializing it with the root rule.
     let g = new Grammar(document, document.Root.Id)
-    
+
     // Create an in-process speech recognizer for the en-US locale.  
+    //use recognizer =  new SpeechRecognitionEngine(new System.Globalization.CultureInfo("fr-FR"))
     use recognizer =  new SpeechRecognitionEngine(new System.Globalization.CultureInfo("en-US"))
 
     //recognizer.EndSilenceTimeout <- TimeSpan.FromSeconds 1.0
