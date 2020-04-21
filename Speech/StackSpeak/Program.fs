@@ -33,12 +33,12 @@ let sr_SpeechRecognized verbose (interpreterState:Interpreter.State) sender (e:S
 open ParserLib
 [<EntryPoint>]
 let main argv =
-    while (true) do
-        let input = Console.ReadLine()
-        let result = runParser (pHello) input
-        Console.WriteLine(result)
+    //while (true) do
+    //    let input = Console.ReadLine()
+    //    let result = runParser (pHello) input
+    //    Console.WriteLine(result)
 
-    let verbose = false
+    let verbose = true
     let writeGrammar = false
 
     let document = Grammar.createGrammarDocument

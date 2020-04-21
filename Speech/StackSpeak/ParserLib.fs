@@ -5,7 +5,7 @@ type Message = string
 type ParseResult<'T> = Success of 'T * Input | Failure of Message
 type Parser<'T> = Input -> ParseResult<'T>
 
-let runParser<'T> (parser:Parser<'T>) (input:string) =
+let run<'T> (parser:Parser<'T>) (input:string) =
     Seq.toList input |> parser
 
 let (<|>) p1 p2 input =
@@ -37,6 +37,11 @@ let pChar (c:char) : Parser<char> = fun input ->
     | x::xs when x = c -> Success (x, xs)
     | _ -> Failure <| sprintf "Expected %A" c
 
+let pAnyChar : Parser<char> = fun input ->
+    match input with
+    | x::xs -> Success (x, xs)
+    | _ -> Failure <| sprintf "Expected character"
+
 let pDigit : Parser<char> = fun input ->
     let inline charToInt c = int c - int '0'
     match input with
@@ -58,6 +63,8 @@ let rec pMany (p:Parser<'a>) (input:Input) : ParseResult<'a list> =
     match p input with
     | Success (result, rest) -> (pMany p >>= fun recResult -> pReturn (result :: recResult)) rest
     | Failure _ -> Success ([], input)
+
+let pMany1 p = p >>= fun result -> (pMany p) >>= fun recResult -> pReturn (result :: recResult)
 
 let pSpace = pChar ' '
 let pString (str:string) = pChars [for c in str -> c] >>= fun resultChars ->
