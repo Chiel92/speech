@@ -21,22 +21,48 @@ let (>>=) (p1:Parser<'a>) (fp2:'a -> Parser<'b>) (input:Input) =
     | Success (result, rest) -> fp2 result rest
     | Failure msg -> Failure msg
 
-let success result = fun rest -> Success (result, rest)
+let pReturn result = fun rest -> Success (result, rest)
+let pIgnore p = p >>= fun _ -> fun rest -> Success ((), rest)
+let pOption p = (p >>= fun result -> pReturn <| Some result) <|> pReturn None
 
-let (.>>) p1 p2 = p1 >>= fun result -> p2 >>= fun _ -> success result
-let (>>.) p1 p2 = p1 >>= fun _ -> p2 >>= fun result -> success result
+let (.>>) p1 p2 = p1 >>= fun result -> p2 >>= fun _ -> pReturn result
+let (>>.) p1 p2 = p1 >>= fun _ -> p2 >>= fun result -> pReturn result
 
-let pChar (c:char) : Parser<char> = fun s ->
-    match s with
+let lookAhead (p1:Parser<'a>) (input:Input) =
+    p1 >>= fun result -> fun _ -> Success (result, input)
+
+let pChar (c:char) : Parser<char> = fun input ->
+    match input with
     | x::xs when x = c -> Success (x, xs)
     | _ -> Failure <| sprintf "Expected %A" c
 
+let pDigit : Parser<char> = fun input ->
+    let inline charToInt c = int c - int '0'
+    match input with
+    | x::xs when (charToInt x >= 0 && charToInt x < 10) -> Success (x, xs)
+    | _ -> Failure <| sprintf "Expected digit"
+
 let rec pChars chars = 
     match chars with
-    | [] -> success []
-    | x::xs -> pChar x >>= fun result -> pChars xs >>= fun recResult -> success (result::recResult)
+    | [] -> pReturn []
+    | x::xs -> pChar x >>= fun result -> pChars xs >>= fun recResult -> pReturn (result::recResult)
 
+let rec pMany (p:Parser<'a>) (input:Input) : ParseResult<'a list> = 
+    match p input with
+    | Success (result, rest) -> (pMany p >>= fun recResult -> pReturn (result :: recResult)) <| rest
+    | Failure _ -> Success ([], input)
+
+let pSpace = pChar ' '
 let pString (str:string) = pChars [for c in str -> c] >>= fun result ->
-    success (System.String.Concat(result))
+    pReturn (System.String.Concat(result))
 
-let pHello = pString "Hello"
+let pEndOfInput input =
+    match input with
+    | [] -> Success ((), input)
+    | _ -> Failure "Expected end of input"
+
+let pWord str = pString str .>> (pIgnore pSpace <|> pEndOfInput)
+let pInt = pMany pDigit >>= fun digits ->
+    pReturn (int <| System.String.Concat(digits)) .>> (pIgnore pSpace <|> pEndOfInput)
+
+let pHello = pWord "Hello" >>. pInt
