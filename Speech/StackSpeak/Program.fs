@@ -31,11 +31,12 @@ let sr_SpeechRecognized verbose (interpreterState:Interpreter.State) sender (e:S
     ()
 
 open ParserLib
+open Parser
 [<EntryPoint>]
 let main argv =
     //while (true) do
     //    let input = Console.ReadLine()
-    //    let result = runParser (pHello) input
+    //    let result = run (pRoot) input
     //    Console.WriteLine(result)
 
     let verbose = true

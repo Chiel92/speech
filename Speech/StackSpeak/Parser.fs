@@ -16,17 +16,19 @@ let pMultiply : OperationParser = wordReturn "multiply" Multiply
 let pDuplicate : OperationParser = wordReturn "duplicate" Duplicate
 let pScratch : OperationParser = wordReturn "scratch" Scratch
 let pLessThan : OperationParser = wordReturn "less than" LessThan
-let pCall : OperationParser =
-    pWord "call" >>. pSpace >>. pAnyChar >>= fun name -> pReturn (Call (name.ToString())) .>> pSpace .>> pWord "now"
+let pCall : OperationParser = pWord "call" >>. pSpace >>. pAnyChar >>= fun name ->
+    pReturn (Call (name.ToString())) .>> pSpace .>> pWord "now"
 let pMaybe : OperationParser = pWord "maybe" >>. pSpace >>. pCall >>= fun op -> pReturn (Maybe op)
 let pOperation : OperationParser =
-    ignoreBabble >>. pChoice [pPush; pPull; pAdd; pSubtract; pMultiply; pDuplicate; pScratch; pCall; pLessThan; pMaybe]
+    ignoreBabble >>. pChoice [
+        pPush; pPull; pAdd; pSubtract; pMultiply; pDuplicate; pScratch; pCall; pLessThan; pMaybe
+        ]
 
 type DefinitionParser = Parser<Definition>
 let pDefinition : DefinitionParser =
-    pWord "define" >>. pSpace >>. pAnyChar >>= fun name ->
+    (pWord "define" >>. pSpace >>. pAnyChar >>= fun name ->
         (pSpace >>. pWord "as" >>. pMany1 pOperation >>= fun operations ->
-            pReturn (name.ToString(), operations))
+            pReturn (name.ToString(), operations))) <?> "Expected definition"
 
 type CommandParser = Parser<Command>
 let pUndo : CommandParser = wordReturn "undo" Undo
