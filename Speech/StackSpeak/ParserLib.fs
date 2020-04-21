@@ -21,7 +21,8 @@ let (>>=) (p1:Parser<'a>) (fp2:'a -> Parser<'b>) (input:Input) =
     | Success (result, rest) -> fp2 result rest
     | Failure msg -> Failure msg
 
-let pReturn result = fun rest -> Success (result, rest)
+let pReturn result = fun input -> Success (result, input)
+let pFail msg = fun _ -> Failure msg
 let pIgnore p = p >>= fun _ -> fun rest -> Success ((), rest)
 let pOption p = (p >>= fun result -> pReturn <| Some result) <|> pReturn None
 
@@ -47,22 +48,29 @@ let rec pChars chars =
     | [] -> pReturn []
     | x::xs -> pChar x >>= fun result -> pChars xs >>= fun recResult -> pReturn (result::recResult)
 
+let rec pChoice ps =
+    match ps with
+    | [] -> pFail "No choice given"
+    | p::[] -> p
+    | p::ps -> p <|> pChoice ps
+
 let rec pMany (p:Parser<'a>) (input:Input) : ParseResult<'a list> = 
     match p input with
-    | Success (result, rest) -> (pMany p >>= fun recResult -> pReturn (result :: recResult)) <| rest
+    | Success (result, rest) -> (pMany p >>= fun recResult -> pReturn (result :: recResult)) rest
     | Failure _ -> Success ([], input)
 
 let pSpace = pChar ' '
-let pString (str:string) = pChars [for c in str -> c] >>= fun result ->
-    pReturn (System.String.Concat(result))
+let pString (str:string) = pChars [for c in str -> c] >>= fun resultChars ->
+    pReturn (System.String.Concat(resultChars))
 
 let pEndOfInput input =
     match input with
     | [] -> Success ((), input)
     | _ -> Failure "Expected end of input"
 
-let pWord str = pString str .>> (pIgnore pSpace <|> pEndOfInput)
-let pInt = pMany pDigit >>= fun digits ->
-    pReturn (int <| System.String.Concat(digits)) .>> (pIgnore pSpace <|> pEndOfInput)
+let pWordBoundary = (pIgnore pSpace <|> pEndOfInput)
+let pWord str = pString str .>> pWordBoundary
+let pInt = pMany pDigit >>= fun resultDigits ->
+    pReturn (int <| System.String.Concat(resultDigits)) .>> pWordBoundary
 
 let pHello = pWord "Hello" >>. pInt
