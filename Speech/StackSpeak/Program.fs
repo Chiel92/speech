@@ -34,10 +34,10 @@ open ParserLib
 open Parser
 [<EntryPoint>]
 let main argv =
-    //while (true) do
-    //    let input = Console.ReadLine()
-    //    let result = run (pRoot) input
-    //    Console.WriteLine(result)
+    while (true) do
+        let input = Console.ReadLine()
+        let result = run (pRoot) input
+        Console.WriteLine(result)
 
     let verbose = true
     let writeGrammar = false
