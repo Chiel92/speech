@@ -37,13 +37,13 @@ let sr_SpeechRecognized verbose (interpreterState:Interpreter.State) sender (e:S
 
 [<EntryPoint>]
 let main argv =
-    let verbose = true
+    let verbose = false
     let writeGrammar = false
-    let voiceMode = true
+    let typingMode = false
 
     let interpreterState = Interpreter.State()
 
-    if not voiceMode then
+    if typingMode then
         while (true) do
             let input = Console.ReadLine()
             executeText interpreterState input

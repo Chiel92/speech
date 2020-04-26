@@ -5,7 +5,7 @@ open ParserLib
 // Parse a string if it ends with a word boundary
 let wordReturn word result = pWord word >>. pReturn result
 
-let ignoreBabble = pOption <| pMany ((pOption pSpace) >>. (pWord "uhm"))
+let ignoreBabble = pOption <| (pOption pSpace) >>. pMany ((pOption pSpace) >>. (pWord "uhm"))
 
 type OperationParser = Parser<Operation>
 let pPush : OperationParser = pWord "push" >>. pCommit (pSpace >>. pInt >>= fun x -> pReturn (Push x))
@@ -27,7 +27,7 @@ let pOperation : OperationParser =
 type DefinitionParser = Parser<Definition>
 let pDefinition : DefinitionParser =
     (pWord "define" >>. pCommit (pSpace >>. pAnyChar >>= fun name ->
-        (pSpace >>. pWord "as" >>. pSpace >>. pMany1 pOperation >>= fun operations ->
+        (pSpace >>. pWord "as" >>. pMany1 pOperation >>= fun operations ->
             pReturn (name.ToString(), operations))) <?> "expected definition")
 
 type CommandParser = Parser<Command>
