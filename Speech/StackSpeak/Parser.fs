@@ -27,7 +27,7 @@ let pOperation : OperationParser =
 type DefinitionParser = Parser<Definition>
 let pDefinition : DefinitionParser =
     (pWord "define" >>. pCommit (pSpace >>. pAnyChar >>= fun name ->
-        (pSpace >>. pWord "as" >>. pMany1 pOperation >>= fun operations ->
+        (pSpace >>. pWord "as" >>. pSpace >>. pMany1 pOperation >>= fun operations ->
             pReturn (name.ToString(), operations))) <?> "expected definition")
 
 type CommandParser = Parser<Command>

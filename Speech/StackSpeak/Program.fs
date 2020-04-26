@@ -1,5 +1,17 @@
 ﻿open System
 open System.Speech.Recognition
+
+let executeText interpreterState text = 
+    let previousColor = Console.ForegroundColor
+    printfn "%s" text
+    Console.ForegroundColor <- ConsoleColor.Red
+    match Parser.runParser text with
+    | Some result -> Interpreter.processCommand interpreterState result
+    | None -> ()
+
+    Console.ForegroundColor <- ConsoleColor.Yellow
+    printfn "Stack: %A" interpreterState.Stack
+    Console.ForegroundColor <- previousColor
     
 let sr_SpeechDetected verbose sender (e:SpeechDetectedEventArgs)  =
     if verbose then printfn "Speech detected..."
@@ -18,29 +30,23 @@ let sr_SpeechRecognized verbose (interpreterState:Interpreter.State) sender (e:S
         printfn "Speech recognized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
 
     if e.Result.Confidence > 0.9f then
-        printfn "%s" e.Result.Text
-        Console.ForegroundColor <- ConsoleColor.Red
-        match Parser.runParser e.Result.Text with
-        | Some result -> Interpreter.processCommand interpreterState result
-        | None -> ()
-
-        Console.ForegroundColor <- ConsoleColor.Yellow
-        printfn "Stack: %A" interpreterState.Stack
+        executeText interpreterState e.Result.Text
 
     Console.ForegroundColor <- previousColor
     ()
 
-open ParserLib
-open Parser
 [<EntryPoint>]
 let main argv =
-    //while (true) do
-    //    let input = Console.ReadLine()
-    //    let result = run (pRoot) input
-    //    Console.WriteLine(result)
-
     let verbose = true
     let writeGrammar = false
+    let voiceMode = true
+
+    let interpreterState = Interpreter.State()
+
+    if not voiceMode then
+        while (true) do
+            let input = Console.ReadLine()
+            executeText interpreterState input
 
     let document = Grammar.createGrammarDocument
 
@@ -55,8 +61,6 @@ let main argv =
     //recognizer.InitialSilenceTimeout <- TimeSpan.FromSeconds 3.0
     //recognizer.BabbleTimeout <- TimeSpan.FromSeconds 4.0
     recognizer.EndSilenceTimeoutAmbiguous <- TimeSpan.FromSeconds 1.2
-
-    let interpreterState = Interpreter.State()
 
     recognizer.SpeechDetected.AddHandler(new EventHandler<SpeechDetectedEventArgs>(sr_SpeechDetected verbose))
     recognizer.SpeechHypothesized.AddHandler(new EventHandler<SpeechHypothesizedEventArgs>(sr_SpeechHypothesized verbose))
