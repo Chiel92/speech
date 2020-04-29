@@ -20,38 +20,31 @@ type State() =
     member this.SetDefinition(name, definition) =
         _scope.[name] <- definition
 
-let rec processOperation (state:State) (scope:Scope) (operation:Operation) frameCount =
+let rec processOperation (state:State) frameCount operations =
+    if frameCount > 1000000 then invalidOp "Recursion too deep"
     let stack = state.Stack
-    let newstack =
-        match operation with
-        | Push x -> Some <| x :: stack
-        | Pull x -> Some <| stack.[x] :: (stack.[..(x-1)] @ stack.[(x+1)..])
-        | Add -> Some <| stack.[0] + stack.[1] :: List.skip 2 stack
-        | Subtract -> Some <| stack.[0] - stack.[1] :: List.skip 2 stack
-        | Multiply -> Some <| stack.[0] * stack.[1] :: List.skip 2 stack
-        | Duplicate -> Some <| stack.[0] :: stack
-        | Scratch -> Some <| List.skip 1 stack
-        | LessThan -> Some <| (if stack.[0] < stack.[1] then 1 else 0) :: List.skip 2 stack
-        | Maybe op ->
-            if stack.[0] <> 0
-            then
-                state.SetStack(List.skip 1 stack)
-                (processOperation state scope op frameCount)
-                None
-            else Some <| List.skip 1 stack
-        | Call d ->
-            consumeOperations state scope (snd scope.[d]) (frameCount+1)
-            None
-    match newstack with
-    | Some s -> state.SetStack(s)
-    | None -> ()
-and consumeOperations state (scope:Scope) (operations:Operation list) frameCount =
-    if frameCount > 1000 then invalidOp "Recursion too deep"
     match operations with
     | [] -> ()
-    | op::ops -> 
-        processOperation state scope op frameCount
-        consumeOperations state scope ops frameCount
+    | op::ops ->
+        match op with
+        | Push x -> x :: stack |> state.SetStack
+        | Pull x -> stack.[x] :: (stack.[..(x-1)] @ stack.[(x+1)..]) |> state.SetStack
+        | Add -> stack.[0] + stack.[1] :: List.skip 2 stack |> state.SetStack
+        | Subtract -> stack.[0] - stack.[1] :: List.skip 2 stack |> state.SetStack
+        | Multiply -> stack.[0] * stack.[1] :: List.skip 2 stack |> state.SetStack
+        | Duplicate -> stack.[0] :: stack |> state.SetStack
+        | Scratch -> List.skip 1 stack |> state.SetStack
+        | LessThan -> (if stack.[0] < stack.[1] then 1 else 0) :: List.skip 2 stack |> state.SetStack
+        | _ -> ()
+        match op with
+        | Maybe innerOp ->
+            let isTrue = stack.[0] <> 0
+            List.skip 1 stack |> state.SetStack
+            if isTrue then processOperation state frameCount (innerOp::ops)
+        | Call d ->
+            let innerOps = snd state.Scope.[d]
+            processOperation state (frameCount+1) (innerOps @ ops)
+        | _ -> processOperation state frameCount ops
 
 let processDefinition (state:State) (definition:Definition) =
     state.SetDefinition(fst definition, definition)
@@ -62,7 +55,7 @@ let processCommand (state:State) (command:Command) =
         match command with
         | Nop -> ()
         | Undo -> state.SetStack(state.PreviousStack)
-        | Op o -> processOperation state state.Scope o 0
+        | Op o -> processOperation state 0 [o]
         | Def d -> processDefinition state d
     with
     | e ->
