@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="ParserLib.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Speech" />
+  </ItemGroup>
+
+</Project>

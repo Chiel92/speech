@@ -14,7 +14,7 @@ type Operation =
 
 type Definition = string * Operation list
 
-type Command = 
+type Command =
     | Op of Operation
     | Def of Definition
     | Undo

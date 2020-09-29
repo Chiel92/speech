@@ -1,16 +1,26 @@
 ﻿module Grammar
+
 open System.Speech.Recognition.SrgsGrammar
 
 
-let createGrammarDocument = 
+let createGrammarDocument =
     // Create the "Number" rule.
     let numberRule = new SrgsRule("id_number")
-    let numbers = [0..100] |> List.map (fun s -> s.ToString()) |> List.toArray
+
+    let numbers =
+        [ 0 .. 100 ]
+        |> List.map (fun s -> s.ToString())
+        |> List.toArray
+
     let numberList = new SrgsOneOf(numbers)
     numberRule.Add(numberList)
 
     let letterRule = new SrgsRule("id_letter")
-    let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray() |> Array.map (fun s -> s.ToString())
+
+    let letters =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray()
+        |> Array.map (fun s -> s.ToString())
+
     let letterList = new SrgsOneOf(letters)
     letterRule.Add(letterList)
 
@@ -62,10 +72,10 @@ let createGrammarDocument =
     rootRule.Add(rootList)
 
     // Create an SrgsDocument object that contains all rules.
-    let document = new SrgsDocument();
-    document.Rules.Add(rootRule, defRule, opRule, numberRule, letterRule, babbleRule);
+    let document = new SrgsDocument()
+    document.Rules.Add(rootRule, defRule, opRule, numberRule, letterRule, babbleRule)
 
     // Set "rootRule" as the root rule of the grammar.
-    document.Root <- rootRule;
+    document.Root <- rootRule
 
     document

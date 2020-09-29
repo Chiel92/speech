@@ -1,11 +1,10 @@
 ﻿open System
 open System.Speech.Recognition
 
-let executeText interpreterState text =
+let executeText interpreterState text = 
     let previousColor = Console.ForegroundColor
     printfn "%s" text
     Console.ForegroundColor <- ConsoleColor.Red
-
     match Parser.runParser text with
     | Some result -> Interpreter.processCommand interpreterState result
     | None -> ()
@@ -13,26 +12,25 @@ let executeText interpreterState text =
     Console.ForegroundColor <- ConsoleColor.Yellow
     printfn "Stack: %A" interpreterState.Stack
     Console.ForegroundColor <- previousColor
-
-let sr_SpeechDetected verbose sender (e: SpeechDetectedEventArgs) =
+    
+let sr_SpeechDetected verbose sender (e:SpeechDetectedEventArgs)  =
     if verbose then printfn "Speech detected..."
 
-let sr_SpeechHypothesized verbose sender (e: SpeechHypothesizedEventArgs) =
-    if verbose
-    then printfn "Speech hypothesized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
+let sr_SpeechHypothesized verbose sender (e:SpeechHypothesizedEventArgs)  =
+    if verbose then printfn "Speech hypothesized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
 
-let sr_SpeechRecognized verbose (interpreterState: Interpreter.State) sender (e: SpeechRecognizedEventArgs) =
+let sr_SpeechRecognized verbose (interpreterState:Interpreter.State) sender (e:SpeechRecognizedEventArgs)  =
     let previousColor = Console.ForegroundColor
+    if e.Result.Confidence > 0.9f then
+        Console.ForegroundColor <- ConsoleColor.Green
+    else 
+        Console.ForegroundColor <- ConsoleColor.Cyan
 
-    if e.Result.Confidence > 0.9f
-    then Console.ForegroundColor <- ConsoleColor.Green
-    else Console.ForegroundColor <- ConsoleColor.Cyan
+    if verbose then
+        printfn "Speech recognized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
 
-    if verbose
-    then printfn "Speech recognized... (Confidence: %A) %s" e.Result.Confidence e.Result.Text
-
-    if e.Result.Confidence > 0.9f
-    then executeText interpreterState e.Result.Text
+    if e.Result.Confidence > 0.9f then
+        executeText interpreterState e.Result.Text
 
     Console.ForegroundColor <- previousColor
     ()
@@ -55,10 +53,9 @@ let main argv =
     // Create a Grammar object, initializing it with the root rule.
     let g = new Grammar(document, document.Root.Id)
 
-    // Create an in-process speech recognizer for the en-US locale.
+    // Create an in-process speech recognizer for the en-US locale.  
     //use recognizer =  new SpeechRecognitionEngine(new System.Globalization.CultureInfo("fr-FR"))
-    use recognizer =
-        new SpeechRecognitionEngine(new System.Globalization.CultureInfo("en-US"))
+    use recognizer =  new SpeechRecognitionEngine(new System.Globalization.CultureInfo("en-US"))
 
     //recognizer.EndSilenceTimeout <- TimeSpan.FromSeconds 1.0
     //recognizer.InitialSilenceTimeout <- TimeSpan.FromSeconds 3.0
@@ -66,31 +63,24 @@ let main argv =
     recognizer.EndSilenceTimeoutAmbiguous <- TimeSpan.FromSeconds 1.2
 
     recognizer.SpeechDetected.AddHandler(new EventHandler<SpeechDetectedEventArgs>(sr_SpeechDetected verbose))
-
-    recognizer.SpeechHypothesized.AddHandler
-        (new EventHandler<SpeechHypothesizedEventArgs>(sr_SpeechHypothesized verbose))
-
-    recognizer.SpeechRecognized.AddHandler
-        (new EventHandler<SpeechRecognizedEventArgs>(sr_SpeechRecognized verbose interpreterState))
+    recognizer.SpeechHypothesized.AddHandler(new EventHandler<SpeechHypothesizedEventArgs>(sr_SpeechHypothesized verbose))
+    recognizer.SpeechRecognized.AddHandler(new EventHandler<SpeechRecognizedEventArgs>(sr_SpeechRecognized verbose interpreterState))
 
     // Load the Grammar object into the recognizer.
-    recognizer.LoadGrammar(g)
+    recognizer.LoadGrammar(g);
 
-    // Configure input to the speech recognizer.
-    recognizer.SetInputToDefaultAudioDevice()
-
-    // Start asynchronous, continuous speech recognition.
-    recognizer.RecognizeAsync(RecognizeMode.Multiple)
+    // Configure input to the speech recognizer.  
+    recognizer.SetInputToDefaultAudioDevice();  
+  
+    // Start asynchronous, continuous speech recognition.  
+    recognizer.RecognizeAsync(RecognizeMode.Multiple);  
 
     // Produce an XML file that contains the grammar.
     if writeGrammar then
-        let writer =
-            System.Xml.XmlWriter.Create("srgsDocument.xml")
-
+        let writer = System.Xml.XmlWriter.Create("srgsDocument.xml")
         document.WriteSrgs(writer)
         writer.Close()
 
     while (true) do
         Console.Read() |> ignore
-
     0 // return an integer exit code
