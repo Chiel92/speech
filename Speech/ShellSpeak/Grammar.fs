@@ -8,9 +8,7 @@ let createGrammarDocument =
     let numberRule = new SrgsRule("id_number")
 
     let numbers =
-        [ 0 .. 100 ]
-        |> List.map (fun s -> s.ToString())
-        |> List.toArray
+        [ 0 .. 100 ] |> List.map (fun s -> s.ToString()) |> List.toArray
 
     let numberList = new SrgsOneOf(numbers)
     numberRule.Add(numberList)
@@ -18,8 +16,7 @@ let createGrammarDocument =
     let letterRule = new SrgsRule("id_letter")
 
     let letters =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray()
-        |> Array.map (fun s -> s.ToString())
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray() |> Array.map (fun s -> s.ToString())
 
     let letterList = new SrgsOneOf(letters)
     letterRule.Add(letterList)
