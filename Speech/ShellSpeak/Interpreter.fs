@@ -3,7 +3,9 @@
 open System
 open Language
 
-let processCommand (command: Command) =
+type State() = class end
+
+let processCommand (state:State) (command: Command) =
     try
         match command with
         | GitStatus -> ()

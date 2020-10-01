@@ -28,10 +28,8 @@ let createGrammarDocument =
     // Create the "Command" rule.
     let cmdRule = new SrgsRule("id_cmd")
     let cmdList = new SrgsOneOf()
-    cmdList.Add(new SrgsItem(new SrgsRuleRef(babbleRule)))
-    let pushItem = new SrgsItem()
-    pushItem.Add(new SrgsItem("git status"))
-    cmdList.Add(pushItem)
+    //cmdList.Add(new SrgsItem(new SrgsRuleRef(babbleRule)))
+    cmdList.Add(new SrgsItem("git status"))
     cmdRule.Add(cmdList)
 
     let rootRule = new SrgsRule("id_root")

@@ -36,19 +36,13 @@ let rec processOperation (state: State) frameCount operations =
             :: (stack.[..(x - 1)] @ stack.[(x + 1)..])
             |> state.SetStack
         | Add ->
-            stack.[0]
-            + stack.[1]
-            :: List.skip 2 stack
+            stack.[0] + stack.[1] :: List.skip 2 stack
             |> state.SetStack
         | Subtract ->
-            stack.[0]
-            - stack.[1]
-            :: List.skip 2 stack
+            stack.[0] - stack.[1] :: List.skip 2 stack
             |> state.SetStack
         | Multiply ->
-            stack.[0]
-            * stack.[1]
-            :: List.skip 2 stack
+            stack.[0] * stack.[1] :: List.skip 2 stack
             |> state.SetStack
         | Duplicate -> stack.[0] :: stack |> state.SetStack
         | Scratch -> List.skip 1 stack |> state.SetStack

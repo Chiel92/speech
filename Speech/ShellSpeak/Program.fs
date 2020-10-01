@@ -11,7 +11,6 @@ let executeText interpreterState text =
     | None -> ()
 
     Console.ForegroundColor <- ConsoleColor.Yellow
-    printfn "Stack: %A" interpreterState.Stack
     Console.ForegroundColor <- previousColor
 
 let sr_SpeechDetected verbose sender (e: SpeechDetectedEventArgs) =

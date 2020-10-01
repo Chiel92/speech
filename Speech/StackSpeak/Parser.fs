@@ -7,25 +7,18 @@ open ParserLib
 let wordReturn word result = pWord word >>. pReturn result
 
 let ignoreBabble =
-    pOption
-    <| (pOption pSpace)
+    pOption <| (pOption pSpace)
     >>. pMany ((pOption pSpace) >>. (pWord "uhm"))
 
 type OperationParser = Parser<Operation>
 
 let pPush: OperationParser =
     pWord "push"
-    >>. pCommit
-            (pSpace
-             >>. pInt
-             >>= fun x -> pReturn (Push x))
+    >>. pCommit (pSpace >>. pInt >>= fun x -> pReturn (Push x))
 
 let pPull: OperationParser =
     pWord "pull"
-    >>. pCommit
-            (pSpace
-             >>. pInt
-             >>= fun x -> pReturn (Pull x))
+    >>. pCommit (pSpace >>. pInt >>= fun x -> pReturn (Pull x))
 
 let pAdd: OperationParser = wordReturn "add together" Add
 let pSubtract: OperationParser = wordReturn "subtract" Subtract
@@ -37,17 +30,14 @@ let pLessThan: OperationParser = wordReturn "less than" LessThan
 let pCall: OperationParser =
     pWord "call"
     >>. pCommit
-            (pSpace
-             >>. pAnyChar
+            (pSpace >>. pAnyChar
              >>= fun name ->
                      pReturn (Call(name.ToString()))
                      .>> pSpace
                      .>> pWord "now")
 
 let pMaybe: OperationParser =
-    pWord "maybe"
-    >>. pSpace
-    >>. pCall
+    pWord "maybe" >>. pSpace >>. pCall
     >>= fun op -> pReturn (Maybe op)
 
 let pOperation: OperationParser =
@@ -69,12 +59,9 @@ type DefinitionParser = Parser<Definition>
 let pDefinition: DefinitionParser =
     (pWord "define"
      >>. pCommit
-             (pSpace
-              >>. pAnyChar
+             (pSpace >>. pAnyChar
               >>= fun name ->
-                      (pSpace
-                       >>. pWord "as"
-                       >>. pMany1 pOperation
+                      (pSpace >>. pWord "as" >>. pMany1 pOperation
                        >>= fun operations -> pReturn (name.ToString(), operations)))
      <?> "expected definition")
 
@@ -85,10 +72,8 @@ let pNop: CommandParser = wordReturn "uhm" Nop
 let pRoot: CommandParser =
     pChoice [ pNop
               pUndo
-              pOperation
-              >>= fun x -> pReturn (Op x)
-              pDefinition
-              >>= fun x -> pReturn (Def x) ]
+              pOperation >>= fun x -> pReturn (Op x)
+              pDefinition >>= fun x -> pReturn (Def x) ]
 
 let runParser str =
     match run pRoot str with
