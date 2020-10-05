@@ -30,8 +30,8 @@ jobs:
       uses: NuGet/setup-nuget@v1.0.2
      
     - name: Restore NuGet Packages
-      run: nuget restore Speech.sln
+      run: nuget restore Speech/Speech.sln
  
     - name: Build and Publish Web App
-      run: msbuild Speech.sln /p:Configuration=Release
+      run: msbuild Speech/Speech.sln /p:Configuration=Release
  
